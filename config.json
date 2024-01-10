@@ -1,0 +1,371 @@
+{
+    "apiConfig": {
+        "apiId": "xxxxxx",
+        "apiKey": "xxxxxx",
+        "baseUrl": "https://program.360ksiegowosc.pl/api",
+        "endpoints": {
+            "getinvoices": {
+                "version": "v1",
+                "method": "POST",
+                "url": "/v1/getinvoices?ApiId={apiId}&timestamp={timestamp}&signature={signature}",
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "requiredData": [
+                    "PeriodStart",
+                    "PeriodEnd"
+                ],
+                "description": "Pobierz listę faktur sprzedaży"
+            },
+            "getinvoice": {
+                "version": "v1",
+                "method": "POST",
+                "url": "/v1/getinvoice?ApiId={apiId}&timestamp={timestamp}&signature={signature}&InvoiceId={InvoiceId}",
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "requiredData": [
+                    "InvoiceId"
+                ],
+                "description": "Pobierz szczegóły faktury sprzedaży"
+            },
+            "getpurchorders": {
+                "version": "v1",
+                "method": "POST",
+                "url": "/v1/getpurchorders?ApiId={apiId}&timestamp={timestamp}&signature={signature}",
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "requiredData": [
+                    "PeriodStart",
+                    "PeriodEnd"
+                ],
+                "description": "Pobierz listę faktur zakupu"
+            },
+            "getpurchorder": {
+                "version": "v1",
+                "method": "POST",
+                "url": "/v1/getpurchorder?ApiId={apiId}&timestamp={timestamp}&signature={signature}&PurchaseOrderId={PurchaseOrderId}",
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "requiredData": [
+                    "PurchaseOrderId"
+                ],
+                "description": "Pobierz szczegóły faktury zakupu"
+            },
+            "getcustomers": {
+                "version": "v1",
+                "method": "POST",
+                "url": "/v1/getcustomers?ApiId={apiId}&timestamp={timestamp}&signature={signature}",
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "requiredData": [],
+                "description": "Pobierz listę klientów"
+            },
+            "getvendors": {
+                "version": "v1",
+                "method": "POST",
+                "url": "/v1/getvendors?ApiId={apiId}&timestamp={timestamp}&signature={signature}",
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "requiredData": [],
+                "description": "Pobierz listę dostawców"
+            },
+            "creategltransactions": {
+                "version": "v1",
+                "method": "POST",
+                "url": "/v1/creategltransactions?ApiId={apiId}&timestamp={timestamp}&signature={signature}",
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "requiredData": [],
+                "description": "Utwórz transakcje księgowe"
+            },
+            "getlistofgltransactions": {
+                "version": "v1",
+                "method": "POST",
+                "url": "/v1/getlistofgltransactions?ApiId={apiId}&timestamp={timestamp}&signature={signature}",
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "requiredData": [],
+                "description": "Pobierz listę transakcji księgowych"
+            },
+            "getgltransactiondetails": {
+                "version": "v1",
+                "method": "POST",
+                "url": "/v1/getgltransactiondetails?ApiId={apiId}&timestamp={timestamp}&signature={signature}",
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "requiredData": [],
+                "description": "Pobierz szczegóły transakcji księgowej"
+            },
+            "listfixedassetlocations": {
+                "version": "v1",
+                "method": "POST",
+                "url": "/v1/listfixedassetlocations?ApiId={apiId}&timestamp={timestamp}&signature={signature}",
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "requiredData": [],
+                "description": "Lista lokalizacji aktywów trwałych"
+            },
+            "getfixedassets": {
+                "version": "v1",
+                "method": "POST",
+                "url": "/v1/getfixedassets?ApiId={apiId}&timestamp={timestamp}&signature={signature}",
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "requiredData": [],
+                "description": "Pobierz aktywa trwałe"
+            },
+            "customerdebtsreport": {
+                "version": "v1",
+                "method": "POST",
+                "url": "/v1/customerdebtsreport?ApiId={apiId}&timestamp={timestamp}&signature={signature}",
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "requiredData": [],
+                "description": "Raport długów klientów"
+            },
+            "customerpaymentreport": {
+                "version": "v1",
+                "method": "POST",
+                "url": "/v1/customerpaymentreport?ApiId={apiId}&timestamp={timestamp}&signature={signature}",
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "requiredData": [],
+                "description": "Raport płatności klientów"
+            },
+            "statementofprofitorloss": {
+                "version": "v1",
+                "method": "POST",
+                "url": "/v1/statementofprofitorloss?ApiId={apiId}&timestamp={timestamp}&signature={signature}",
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "requiredData": [],
+                "description": "Sprawozdanie z zysków i strat"
+            },
+            "statementoffinancialposition": {
+                "version": "v1",
+                "method": "POST",
+                "url": "/v1/statementoffinancialposition?ApiId={apiId}&timestamp={timestamp}&signature={signature}",
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "requiredData": [],
+                "description": "Sprawozdanie z sytuacji finansowej"
+            },
+            "unitsofmeasurelist": {
+                "version": "v1",
+                "method": "POST",
+                "url": "/v1/unitsofmeasurelist?ApiId={apiId}&timestamp={timestamp}&signature={signature}",
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "requiredData": [],
+                "description": "Lista jednostek miar"
+            },
+            "bankslist": {
+                "version": "v1",
+                "method": "POST",
+                "url": "/v1/bankslist?ApiId={apiId}&timestamp={timestamp}&signature={signature}",
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "requiredData": [],
+                "description": "Lista banków"
+            },
+            "projectlist": {
+                "version": "v1",
+                "method": "POST",
+                "url": "/v1/projectlist?ApiId={apiId}&timestamp={timestamp}&signature={signature}",
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "requiredData": [],
+                "description": "Lista projektów"
+            },
+            "costcenterslist": {
+                "version": "v1",
+                "method": "POST",
+                "url": "/v1/costcenterslist?ApiId={apiId}&timestamp={timestamp}&signature={signature}",
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "requiredData": [],
+                "description": "Lista centrów kosztów"
+            },
+            "getdimensionslist": {
+                "version": "v1",
+                "method": "POST",
+                "url": "/v1/getdimensionslist?ApiId={apiId}&timestamp={timestamp}&signature={signature}",
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "requiredData": [],
+                "description": "Pobierz listę wymiarów"
+            },
+            "accountslist": {
+                "version": "v1",
+                "method": "POST",
+                "url": "/v1/accountslist?ApiId={apiId}&timestamp={timestamp}&signature={signature}",
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "requiredData": [],
+                "description": "Lista kont"
+            },
+            "itemslist": {
+                "version": "v1",
+                "method": "POST",
+                "url": "/v1/itemslist?ApiId={apiId}&timestamp={timestamp}&signature={signature}",
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "requiredData": [],
+                "description": "Lista elementów"
+            }
+        },
+        "endpointCategories": {
+            "Faktury sprzedaży": {
+                "visible": true,
+                "active": true,
+                "endpoints": {
+                    "getinvoices": {
+                        "visible": true,
+                        "active": true
+                    },
+                    "getinvoice": {
+                        "visible": true,
+                        "active": false
+                    }
+                }
+            },
+            "Faktury zakupu": {
+                "visible": true,
+                "active": true,
+                "endpoints": {
+                    "getpurchorders": {
+                        "visible": true,
+                        "active": true
+                    },
+                    "getpurchorder": {
+                        "visible": true,
+                        "active": false
+                    }
+                }
+            },
+            "Klienci i dostawcy": {
+                "visible": true,
+                "active": true,
+                "endpoints": {
+                    "getcustomers": {
+                        "visible": true,
+                        "active": true
+                    },
+                    "getvendors": {
+                        "visible": true,
+                        "active": true
+                    }
+                }
+            },
+            "Transakcje księgowe": {
+                "visible": true,
+                "active": false,
+                "endpoints": {
+                    "creategltransactions": {
+                        "visible": true,
+                        "active": false
+                    },
+                    "getlistofgltransactions": {
+                        "visible": true,
+                        "active": false
+                    },
+                    "getgltransactiondetails": {
+                        "visible": true,
+                        "active": false
+                    }
+                }
+            },
+            "Aktywa trwałe": {
+                "visible": true,
+                "active": false,
+                "endpoints": {
+                    "listfixedassetlocations": {
+                        "visible": true,
+                        "active": false
+                    },
+                    "getfixedassets": {
+                        "visible": true,
+                        "active": false
+                    }
+                }
+            },
+            "Raporty": {
+                "visible": true,
+                "active": false,
+                "endpoints": {
+                    "customerdebtsreport": {
+                        "visible": true,
+                        "active": false
+                    },
+                    "customerpaymentreport": {
+                        "visible": true,
+                        "active": false
+                    },
+                    "statementofprofitorloss": {
+                        "visible": true,
+                        "active": false
+                    },
+                    "statementoffinancialposition": {
+                        "visible": true,
+                        "active": false
+                    }
+                }
+            },
+            "Inne": {
+                "visible": true,
+                "active": false,
+                "endpoints": {
+                    "unitsofmeasurelist": {
+                        "visible": true,
+                        "active": false
+                    },
+                    "bankslist": {
+                        "visible": true,
+                        "active": false
+                    },
+                    "projectlist": {
+                        "visible": true,
+                        "active": false
+                    },
+                    "costcenterslist": {
+                        "visible": true,
+                        "active": false
+                    },
+                    "getdimensionslist": {
+                        "visible": true,
+                        "active": true
+                    },
+                    "accountslist": {
+                        "visible": true,
+                        "active": true
+                    },
+                    "itemslist": {
+                        "visible": true,
+                        "active": false
+                    }
+                }
+            }
+        }
+    }
+}
