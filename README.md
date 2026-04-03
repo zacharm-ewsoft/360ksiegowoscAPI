@@ -505,6 +505,13 @@ Contributions are welcome! Here's how:
 
 ## Changelog
 
+### 2.1.0 (2026-04-03)
+- Fix VAT tax lookup: exact match on Code (e.g. `"23%"`) first, then fallback by TaxPct excluding OO/ZW/EU/Import/Marża prefixes — previously `"23" in "OO 23%"` matched wrong rate
+- Auto invoice numbering: `_next_invoice_number()` generates sequential monthly numbers per department (e.g. `1/04/2026/N2P`) — Merit API requires InvoiceNo, does not auto-generate
+- New `invoice_no_suffix` parameter in `create_simple_invoice()`
+- Fix `get_accounts()` endpoint (`getaccounts` not `accountslist`)
+- All fixes verified against live 360 Księgowość API
+
 ### 2.0.0 (2026-04-03)
 - Complete rewrite as pip-installable library
 - Full API coverage (60+ endpoints)
