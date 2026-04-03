@@ -22,7 +22,7 @@ from merit_activa.exceptions import (
     MeritValidationError,
 )
 
-__version__ = "2.0.0"
+__version__ = "2.1.0"
 __author__ = "Marek Zacharewicz"
 __email__ = "marek@infortel.pl"
 __license__ = "GPL-3.0-or-later"

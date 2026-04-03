@@ -218,7 +218,7 @@ class MeritClient:
 
     def get_banks(self) -> list[dict]:
         """Get list of banks."""
-        return self._request("bankslist")
+        return self._request("getbanks")
 
     def get_units_of_measure(self) -> list[dict]:
         """Get list of units of measure."""
@@ -986,6 +986,57 @@ class MeritClient:
 
         return self.create_customer(name=name, reg_no=reg_no, **kwargs)
 
+    def _next_invoice_number(
+        self,
+        department_code: str | None = None,
+        suffix: str | None = None,
+    ) -> str:
+        """Auto-generate next invoice number in format: N/MM/YYYY/SUFFIX.
+
+        Queries existing invoices for the current month to find the highest
+        number and increments it.
+
+        Args:
+            department_code: Department code to scope numbering.
+            suffix: Invoice number suffix (default: 'FV').
+
+        Returns:
+            Next invoice number, e.g. '1/04/2026/N2P'.
+        """
+        import re
+
+        now = datetime.now()
+        month_str = now.strftime("%m")
+        year_str = now.strftime("%Y")
+        period_start = now.strftime("%Y%m01")
+        period_end = now.strftime("%Y%m%d")
+
+        if not suffix:
+            suffix = "FV"
+
+        # Get existing invoices for this month and department
+        try:
+            invoices = self.get_invoices(
+                period_start, period_end,
+                department_code=department_code,
+            )
+        except Exception:
+            invoices = []
+
+        # Find highest number matching pattern N/MM/YYYY/*
+        max_num = 0
+        pattern = re.compile(rf"^(\d+)/{month_str}/{year_str}")
+        for inv in invoices:
+            inv_no = inv.get("InvoiceNo", "")
+            match = pattern.match(inv_no)
+            if match:
+                num = int(match.group(1))
+                if num > max_num:
+                    max_num = num
+
+        next_num = max_num + 1
+        return f"{next_num}/{month_str}/{year_str}/{suffix}"
+
     def create_simple_invoice(
         self,
         customer_name: str,
@@ -996,6 +1047,7 @@ class MeritClient:
         department_code: str | None = None,
         due_date: str | None = None,
         invoice_no: str | None = None,
+        invoice_no_suffix: str | None = None,
         ksef_number: str | None = None,
         payment_deadline: int = 14,
     ) -> dict:
@@ -1035,14 +1087,25 @@ class MeritClient:
             payment_deadline=payment_deadline,
         )
 
-        # 2. Find matching tax rate
+        # 2. Find matching tax rate (exact match first, then substring)
         taxes = self.get_taxes()
         tax_id = None
+        target = f"{vat_rate}%"
+        # Exact match on Code (e.g. "23%")
         for tax in taxes:
-            code = tax.get("Code", "")
-            if str(vat_rate) in code:
+            code = tax.get("Code", "").strip()
+            if code == target:
                 tax_id = tax["Id"]
                 break
+        # Fallback: match by TaxPct for standard sales taxes (exclude OO, ZW, EU, Import, Marża)
+        if not tax_id:
+            exclude_prefixes = ("OO", "ZW", "EU", "Import", "Marża", "Marza", "ŚT", "ST", "VAT do", "VAT Prop", "VAT nal", "VAT pod", "NP")
+            for tax in taxes:
+                code = tax.get("Code", "")
+                pct = tax.get("TaxPct", 0)
+                if float(pct) == float(vat_rate) and not any(code.startswith(p) for p in exclude_prefixes):
+                    tax_id = tax["Id"]
+                    break
         if not tax_id:
             raise MeritValidationError(
                 f"Tax rate {vat_rate}% not found in Merit. "
@@ -1071,6 +1134,12 @@ class MeritClient:
         }
         if department_code:
             row["DepartmentCode"] = department_code
+
+        # Auto-generate invoice number if not provided
+        if not invoice_no:
+            invoice_no = self._next_invoice_number(
+                department_code, suffix=invoice_no_suffix,
+            )
 
         return self.create_invoice(
             customer={

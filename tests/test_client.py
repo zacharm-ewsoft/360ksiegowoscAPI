@@ -80,7 +80,7 @@ def test_create_simple_invoice(client):
     responses.add(
         responses.POST,
         url=f"{BASE_URL}/v1/gettaxes",
-        json=[{"Id": "tax-23", "Code": "VAT23", "Name": "VAT 23%"}],
+        json=[{"Id": "tax-23", "Code": "23%", "Name": "Stawka VAT 23%", "TaxPct": 23.0}],
         status=200,
         match_querystring=False,
     )
@@ -97,6 +97,14 @@ def test_create_simple_invoice(client):
         responses.POST,
         url=f"{BASE_URL}/v2/sendcustomer",
         json={"Id": "cust-new", "Name": "Test"},
+        status=200,
+        match_querystring=False,
+    )
+    # Mock getinvoices (for _next_invoice_number)
+    responses.add(
+        responses.POST,
+        url=f"{BASE_URL}/v1/getinvoices",
+        json=[],
         status=200,
         match_querystring=False,
     )
