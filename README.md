@@ -2,7 +2,7 @@
 
 **Python client library for [Merit Aktiva](https://www.merit.ee/) / [360 Księgowość](https://www.360ksiegowosc.pl/) API.**
 
-Create invoices, manage customers, register payments, integrate with KSeF — all from Python. Perfect for SaaS platforms, e-commerce, and any system that needs automated invoicing through Merit Aktiva accounting software.
+Create invoices, manage customers, register payments — all from Python. Perfect for SaaS platforms, e-commerce, and any system that needs automated invoicing through Merit Aktiva accounting software.
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
@@ -16,7 +16,7 @@ Create invoices, manage customers, register payments, integrate with KSeF — al
 
 - **SaaS billing** — automatically create invoices when customers pay via PayU, Stripe, etc.
 - **Multi-project accounting** — track revenue per project/platform using departments
-- **KSeF compliance** — Merit handles mandatory KSeF submission in Poland automatically
+- **KSeF compatible** — invoices created via API are picked up by Merit's built-in KSeF integration (configured separately in Merit UI)
 - **Customer management** — sync customers from your app to accounting
 - **Payment tracking** — register payments and mark invoices as paid programmatically
 
@@ -28,7 +28,7 @@ Create invoices, manage customers, register payments, integrate with KSeF — al
 - **Invoice email delivery** — send invoice PDFs directly from Merit to customers
 - **PDF download** — get invoice PDFs as base64
 - **Department support** — assign invoices to departments (per project/platform)
-- **KSeF ready** — Poland's mandatory e-invoicing system, handled automatically by Merit
+- **KSeF compatible** — invoices work with Merit's built-in KSeF (Poland's e-invoicing), no extra code needed
 - **Long period queries** — auto-segments requests into 90-day chunks (API limit)
 - **Service items** — create products/services via API for consistent invoicing
 - **Multi-country** — Poland (360 Księgowość), Estonia, Finland
@@ -132,7 +132,7 @@ result = client.invoice_and_pay(
     payu_order_id="WZHF5FFDRJ140731GUEST000P01",
 )
 # Creates customer (if needed) → creates invoice → registers payment → sends email
-# Merit automatically submits to KSeF (Poland)
+# Merit handles KSeF submission separately (configured in Merit UI)
 print(result)
 # {
 #     "customer_id": "...",
@@ -194,14 +194,19 @@ client.create_items([
 items = client.get_items()
 ```
 
-## KSeF Integration (Poland)
+## KSeF Compatibility (Poland)
 
 [KSeF](https://www.podatki.gov.pl/ksef/) (Krajowy System e-Faktur) is Poland's mandatory e-invoicing system, required for all businesses since April 2026.
 
-360 Księgowość has **built-in KSeF integration**. When you create an invoice via this library, Merit automatically submits it to KSeF — no extra code needed.
+**This library does NOT communicate with KSeF directly.** KSeF submission is handled entirely by Merit Aktiva / 360 Księgowość itself (configured in Merit UI under Ustawienia → KSeF).
+
+What this library does support:
+- Creating invoices that Merit then submits to KSeF automatically
+- Passing a `ksef_number` field when creating invoices (if you already have one)
+- Reading the KSeF number from invoice details after Merit processes it
 
 ```python
-# Create invoice — Merit handles KSeF automatically
+# Create invoice — Merit submits to KSeF on its own
 invoice = client.create_simple_invoice(
     customer_name="Firma ABC",
     customer_nip="1234567890",
@@ -209,16 +214,9 @@ invoice = client.create_simple_invoice(
     net_amount=299.00,
 )
 
-# After KSeF processes it, the KSeF number is stored in Merit:
+# Later, after Merit submits to KSeF, the number appears in details:
 details = client.get_invoice_details(invoice["InvoiceId"])
 ksef_number = details.get("KsefNumber")
-# e.g. "1234567890-20260403-A1B2C3-D4E5F6-AB"
-
-# You can also pass a KSeF number when creating invoices:
-client.create_simple_invoice(
-    ...,
-    ksef_number="1234567890-20260403-A1B2C3-D4E5F6-AB",
-)
 ```
 
 ## Django / Celery Integration
@@ -516,7 +514,7 @@ Contributions are welcome! Here's how:
 - Service item creation via `create_items()` with correct `{Items: [...]}` format
 - Invoice email delivery (`send_invoice_by_email()`) and PDF download (`get_invoice_pdf()`)
 - Department support for multi-project revenue tracking
-- KSeF number support (Poland's mandatory e-invoicing)
+- KSeF compatible (Merit handles KSeF separately — this library just creates invoices)
 - Auto-segmentation for long period queries (90-day API limit)
 - Type hints, comprehensive docstrings, and error hierarchy
 - 10 unit tests with full mock coverage

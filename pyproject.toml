@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "merit-activa-api"
 version = "2.0.0"
-description = "Python client library for Merit Aktiva / 360 Księgowość API — automated invoicing, customers, payments, KSeF, departments, and 60+ endpoints"
+description = "Python client library for Merit Aktiva / 360 Księgowość API — automated invoicing, customers, payments, departments, and 60+ endpoints"
 readme = "README.md"
 license = {text = "GPL-3.0-or-later"}
 requires-python = ">=3.9"
