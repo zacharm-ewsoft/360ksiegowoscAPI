@@ -778,7 +778,7 @@ class MeritClient:
 
     def get_payment_types(self) -> list[dict]:
         """Get available payment types."""
-        return self._request("getpaymenttypes")
+        return self._request("getpaymenttypes", version="v2")
 
     def send_payment(self, payment_data: dict) -> Any:
         """Register payment for a sales invoice.
@@ -810,15 +810,27 @@ class MeritClient:
 
     def get_items(self) -> list[dict]:
         """Get list of items/products."""
-        return self._request("itemslist")
+        return self._request("getitems")
 
     def get_item_groups(self) -> list[dict]:
         """Get list of item groups."""
         return self._request("getitemgroups")
 
     def create_items(self, items: list[dict]) -> Any:
-        """Create new items/products."""
-        return self._request("senditems", items)
+        """Create new items/products.
+
+        Args:
+            items: List of item dicts. Required fields per item:
+                - Code (Str 20): Item code
+                - Description (Str 100): Item name
+                - Type (Int): 1=stock, 2=service, 3=item
+                - Usage (Int): 1=sales, 2=purchases, 3=both
+                Optional: UOMName, TaxId, SalesAccCode, GTUCode (1-13, Poland)
+
+        Note:
+            Prices must be set separately via ``send_prices()``.
+        """
+        return self._request("senditems", {"Items": items}, version="v2")
 
     def update_item(self, item_data: dict) -> Any:
         """Update an existing item."""
@@ -1164,3 +1176,138 @@ class MeritClient:
             "invoice_no": invoice_no,
             "email_sent": email_sent,
         }
+
+    def register_payu_payment(
+        self,
+        invoice_id: str,
+        amount: float | Decimal,
+        bank_name: str = "PayU",
+        payu_order_id: str = "",
+        payment_date: str | None = None,
+    ) -> Any:
+        """Register a PayU payment against a sales invoice.
+
+        Call this after PayU webhook confirms COMPLETED status.
+        This marks the invoice as paid in Merit / 360 Księgowość.
+
+        Args:
+            invoice_id: SIHId (GUID) of the sales invoice in Merit.
+            amount: Payment amount (gross, including VAT).
+            bank_name: Bank/payment method name (default: "PayU").
+            payu_order_id: PayU order ID for reference tracking.
+            payment_date: Payment date YYYYMMDD (default: today).
+
+        Returns:
+            API response confirming payment registration.
+
+        Example:
+            >>> # After PayU webhook COMPLETED:
+            >>> client.register_payu_payment(
+            ...     invoice_id="abc-123-def",
+            ...     amount=982.77,  # gross (799 + 23% VAT)
+            ...     payu_order_id="PAYU-H9S82KD0F3",
+            ... )
+        """
+        if payment_date is None:
+            payment_date = datetime.now().strftime("%Y%m%d")
+
+        # Find bank account for PayU
+        banks = self.get_banks()
+        bank_id = None
+        for bank in banks:
+            if bank_name.lower() in (bank.get("Name") or "").lower():
+                bank_id = bank.get("BankId")
+                break
+
+        # If no "PayU" bank found, use first available
+        if not bank_id and banks:
+            bank_id = banks[0].get("BankId")
+            logger.info(
+                "Bank '%s' not found, using '%s'", bank_name, banks[0].get("Name")
+            )
+
+        payload: dict[str, Any] = {
+            "InvoiceId": invoice_id,
+            "PaymentDate": payment_date,
+            "Amount": float(amount) if isinstance(amount, Decimal) else amount,
+            "DocumentNo": payu_order_id or f"PayU-{payment_date}",
+        }
+        if bank_id:
+            payload["BankId"] = bank_id
+
+        return self.send_payment(payload)
+
+    def invoice_and_pay(
+        self,
+        customer_name: str,
+        customer_nip: str,
+        customer_email: str,
+        description: str,
+        net_amount: float | Decimal,
+        department_code: str | None = None,
+        payu_order_id: str = "",
+        send_email: bool = True,
+        **kwargs,
+    ) -> dict:
+        """Complete paid invoice flow: customer → invoice → payment → email.
+
+        Use this when PayU payment is already confirmed (webhook COMPLETED).
+        Creates invoice AND immediately registers it as paid.
+
+        Args:
+            customer_name: Company name.
+            customer_nip: NIP number.
+            customer_email: Email for invoice delivery.
+            description: Invoice line description.
+            net_amount: Net amount (without VAT).
+            department_code: Department code (e.g. "NIS2PILOT").
+            payu_order_id: PayU order ID for payment tracking.
+            send_email: If True, send invoice by email after creation.
+            **kwargs: Extra args passed to create_simple_invoice().
+
+        Returns:
+            Dict with customer_id, invoice_id, invoice_no, email_sent, payment_registered.
+
+        Example:
+            >>> # In PayU webhook handler:
+            >>> result = client.invoice_and_pay(
+            ...     customer_name="Firma ABC Sp. z o.o.",
+            ...     customer_nip="1234567890",
+            ...     customer_email="faktury@firma.pl",
+            ...     description="NIS2Pilot Professional — subskrypcja maj 2026",
+            ...     net_amount=799.00,
+            ...     department_code="NIS2PILOT",
+            ...     payu_order_id="WZHF5FFDRJ140731GUEST000P01",
+            ... )
+        """
+        # 1. Create invoice (includes customer creation)
+        result = self.invoice_full_flow(
+            customer_name=customer_name,
+            customer_nip=customer_nip,
+            customer_email=customer_email,
+            description=description,
+            net_amount=net_amount,
+            department_code=department_code,
+            send_email=send_email,
+            **kwargs,
+        )
+
+        # 2. Register payment (mark as paid)
+        payment_registered = False
+        if result["invoice_id"]:
+            vat_rate = kwargs.get("vat_rate", 23)
+            net = float(net_amount) if isinstance(net_amount, Decimal) else net_amount
+            gross_amount = round(net * (1 + vat_rate / 100), 2)
+
+            try:
+                self.register_payu_payment(
+                    invoice_id=result["invoice_id"],
+                    amount=gross_amount,
+                    payu_order_id=payu_order_id,
+                )
+                payment_registered = True
+            except MeritApiError as e:
+                logger.warning("Could not register payment: %s", e)
+
+        result["payment_registered"] = payment_registered
+        return result
