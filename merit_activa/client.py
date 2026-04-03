@@ -76,8 +76,12 @@ class MeritClient:
 
     def _sign(self, timestamp: str, json_payload: str) -> str:
         """Generate HMAC-SHA256 signature for API request."""
+        import hmac as _hmac
+
         signable = f"{self.api_id}{timestamp}{json_payload}".encode()
-        raw_signature = hashlib.sha256(signable).digest()
+        raw_signature = _hmac.new(
+            self.api_key.encode(), signable, hashlib.sha256
+        ).digest()
         return base64.b64encode(raw_signature).decode()
 
     def _request(
