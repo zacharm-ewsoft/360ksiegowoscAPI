@@ -1,0 +1,64 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "merit-activa-api"
+version = "2.0.0"
+description = "Python client library for Merit Aktiva / 360 Księgowość API — invoices, customers, payments, KSeF integration and more"
+readme = "README.md"
+license = {text = "GPL-3.0-or-later"}
+requires-python = ">=3.9"
+authors = [
+    {name = "Marek Zacharewicz", email = "marek@infortel.pl"},
+]
+maintainers = [
+    {name = "Marek Zacharewicz", email = "marek@infortel.pl"},
+]
+keywords = [
+    "merit-aktiva", "360ksiegowosc", "accounting", "invoices", "ksef",
+    "polish-accounting", "api-client", "faktura", "księgowość",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Financial and Insurance Industry",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Office/Business :: Financial :: Accounting",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+dependencies = [
+    "requests>=2.28.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov",
+    "responses>=0.23",
+    "ruff",
+]
+
+[project.urls]
+Homepage = "https://github.com/zacharm-ewsoft/360ksiegowoscAPI"
+Documentation = "https://github.com/zacharm-ewsoft/360ksiegowoscAPI#readme"
+Repository = "https://github.com/zacharm-ewsoft/360ksiegowoscAPI"
+Issues = "https://github.com/zacharm-ewsoft/360ksiegowoscAPI/issues"
+
+[tool.setuptools.packages.find]
+include = ["merit_activa*"]
+
+[tool.ruff]
+target-version = "py39"
+line-length = 100
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
